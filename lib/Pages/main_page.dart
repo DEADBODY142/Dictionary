@@ -1,11 +1,13 @@
-import 'package:dictonary/main.dart';
+import 'package:dictonary/commonpage/bookmark.dart';
+import 'package:dictonary/homeapi.dart';
 import 'package:dictonary/model/dictionary_data.dart';
 import 'package:dictonary/service/dictionary_call.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final String? initialWord;
+  const MainPage({super.key, this.initialWord});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -53,10 +55,26 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    loadBookmark();
+    if (widget.initialWord != null) {
+      search.text = widget.initialWord!;
+      getDictionaryData(widget.initialWord!);
+    }
+  }
+
+  void loadBookmark() async {
+    List<String> savedWords = await getData();
+    setState(() {
+      bookmarkedWords = savedWords;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     List<String> adjectiveSynonyms = [];
     List<String> adjectiveAntonyms = [];
-
     for (var entry in dictionaryData) {
       for (var meaning in entry.meanings) {
         if (meaning.partOfSpeech == 'adjective') {
@@ -105,7 +123,7 @@ class _MainPageState extends State<MainPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const MyApp()),
+                      MaterialPageRoute(builder: (context) => const HomePage()),
                     );
                   },
                   child: Text('OK'),
@@ -147,18 +165,16 @@ class _MainPageState extends State<MainPage> {
                           ),
                           //* Bookmark Button
                           IconButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              final word = dictionaryData[0].word;
+                              if (bookmarkedWords.contains(word)) {
+                                await removeData(word);
+                              } else {
+                                await addData(word);
+                              }
+                              final updated = await getData();
                               setState(() {
-                                // isBookmarked = !isBookmarked;
-                                if (bookmarkedWords.contains(
-                                  dictionaryData[0].word,
-                                )) {
-                                  bookmarkedWords.remove(
-                                    dictionaryData[0].word,
-                                  );
-                                } else {
-                                  bookmarkedWords.add(dictionaryData[0].word);
-                                }
+                                bookmarkedWords = updated;
                               });
                             },
                             icon: Icon(
@@ -185,7 +201,7 @@ class _MainPageState extends State<MainPage> {
                             (definition) => Padding(
                               padding: EdgeInsets.only(left: 1),
                               child: Text(
-                                '${definition.definition}\n',
+                                '• ${definition.definition}\n',
                                 style: TextStyle(fontSize: 15),
                               ),
                             ),

@@ -3,8 +3,8 @@ import 'package:dictonary/Pages/main_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  final VoidCallback onToggleTheme;
-  const HomePage({required this.onToggleTheme, super.key});
+  final String? initialword;
+  const HomePage({ super.key,this.initialword});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -38,9 +38,9 @@ class _HomePageState extends State<HomePage> {
           // ),
         ],
       ),
-      drawer: SideDrawer(onToggleTheme: widget.onToggleTheme),
+      drawer: SideDrawer(),
 
-      body: MainPage(),
+      body: MainPage(initialWord: widget.initialword),
     );
   }
 }

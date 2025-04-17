@@ -1,12 +1,12 @@
+import 'package:dictonary/provider/theme_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SideDrawer extends StatelessWidget {
-  final VoidCallback onToggleTheme;
-  const SideDrawer({required this.onToggleTheme, super.key});
+  const SideDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Drawer(
       width: 200,
@@ -25,6 +25,7 @@ class SideDrawer extends StatelessWidget {
             title: Text('Home'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.pushNamed(context, '/');
             },
           ),
           ListTile(
@@ -41,14 +42,22 @@ class SideDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-          ListTile(leading: Icon(Icons.bookmark), title: Text("Saved Words")),
           ListTile(
-            trailing: Switch(
-              value: isDarkMode,
-              onChanged: (value) => onToggleTheme(),
-              activeColor: Colors.white,
-              activeTrackColor: Colors.blue,
-              // inactiveTrackColor: Colors.red,
+            leading: Icon(Icons.bookmark),
+            title: Text("Saved Words"),
+            onTap: () => Navigator.pushNamed(context, '/saved'),
+          ),
+          ListTile(
+            trailing: Consumer<ThemeNotifier>(
+              builder: (context, themeNotifier, child) {
+                return Switch(
+                  value: themeNotifier.themeMode == ThemeMode.dark,
+                  onChanged: (value) => themeNotifier.toggleTheme(),
+                  activeColor: Colors.white,
+                  activeTrackColor: Colors.blue,
+                  // inactiveTrackColor: Colors.red,
+                );
+              },
             ),
             title: Text('Theme'),
           ),
